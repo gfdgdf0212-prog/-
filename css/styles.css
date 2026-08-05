@@ -462,3 +462,6 @@ padding:12px;background:rgba(12,20,14,.97);border:1px solid rgba(224,112,79,.5);
 #dbg .skip-row{display:flex;gap:5px;align-items:center}
 #dbg .skip-row input{width:54px;background:rgba(255,255,255,.08);border:1px solid rgba(160,210,170,.27);border-radius:8px;color:#eef5ea;font:700 12px Manrope;padding:6px 7px;text-align:center}
 #dbg .skip-row button{flex:1;text-align:center}
+#fpsMeter{position:fixed;left:10px;bottom:calc(64px + env(safe-area-inset-bottom));z-index:6;pointer-events:none;display:none;
+font:700 11px Unbounded;color:#9fd8a8;background:rgba(10,18,12,.6);border:1px solid rgba(160,210,170,.25);
+border-radius:8px;padding:4px 9px;letter-spacing:.05em}
