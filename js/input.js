@@ -295,6 +295,26 @@ dbg.innerHTML=
 document.body.appendChild(dbg);
 dbg.addEventListener('click',e=>{if(e.target.id==='dbgX'){dbg.classList.remove('open');return;}
 const b=e.target.closest('[data-c]');if(b){try{eval(b.dataset.c);}catch(err){console.error(err);}}});
-$('#cheatFab').addEventListener('click',()=>dbg.classList.toggle('open'));
+/* ── СЕКРЕТНЫЙ ВХОД В ЧИТЫ: код из пилюль (НЕ сохраняется, сбрасывается при перезаходе) ── */
+let cheatUnlocked=false;
+const CHEAT_SEQ=['seedPill','dewPill','seedPill','dewPill','mutPill'];
+let cheatSeqI=0,cheatSeqT=0;
+function unlockCheats(){
+if(cheatUnlocked)return;
+cheatUnlocked=true;
+const f=$('#cheatFab');if(f)f.classList.add('show');
+sfx.claim();
+setTimeout(()=>toast('🐞 '+(S.lang==='ru'?'читы разблокированы (до перезахода)':'cheats unlocked (until reload)')),600);}
+function cheatTap(id){
+const now=performance.now();
+if(now-cheatSeqT>1200)cheatSeqI=0;   /* пауза между тапами > 1.2 c — сброс */
+cheatSeqT=now;
+if(id===CHEAT_SEQ[cheatSeqI])cheatSeqI++;
+else cheatSeqI=(id===CHEAT_SEQ[0])?1:0;
+if(cheatSeqI>=CHEAT_SEQ.length){cheatSeqI=0;unlockCheats();}}
+['seedPill','dewPill','mutPill'].forEach(id=>{
+const p=document.getElementById(id);
+if(p)p.addEventListener('pointerdown',()=>cheatTap(id),{passive:true});});
+$('#cheatFab').addEventListener('click',()=>{if(cheatUnlocked)dbg.classList.toggle('open');});
 document.addEventListener('keydown',e=>{
-if(e.ctrlKey&&e.shiftKey&&(e.code==='KeyD'||e.key==='D'||e.key==='d')){e.preventDefault();dbg.classList.toggle('open');}});
+if(e.ctrlKey&&e.shiftKey&&(e.code==='KeyD'||e.key==='D'||e.key==='d')){e.preventDefault();unlockCheats();}});
