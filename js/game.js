@@ -1071,7 +1071,8 @@ $('#bannerTitle').textContent=title;$('#bannerSub').textContent=sub;
 b.className='';if(cls&&cls!==true)b.classList.add(cls);b.classList.remove('show');void b.offsetWidth;b.classList.add('show');}
 let toastT=0;function toast(msg){const tt=$('#toast');tt.textContent=msg;tt.classList.add('show');
 clearTimeout(toastT);toastT=setTimeout(()=>tt.classList.remove('show'),4500);}
-const open=s=>$(s).classList.add('open'),close=s=>$(s).classList.remove('open');
+const open=s=>{const e=$(s);if(e)e.classList.add('open');};
+const close=s=>{const e=$(s);if(e)e.classList.remove('open');};
 const SHEETS=['#upgOverlay','#rouletteOverlay','#skillTreeOverlay','#abilitiesOverlay','#questsOverlay','#passOverlay','#shopOverlay','#setOverlay'];
 function closeSheet(sel){
 if(sel==='#rouletteOverlay'){
@@ -1257,32 +1258,29 @@ if($('#abilitiesOverlay').classList.contains('open'))renderAbilities();
 if($('#rouletteOverlay').classList.contains('open'))updateSpinBtn();}
 /* ── БОЕВОЙ ПРОПУСК: вехи за главы, всегда рендерится, try/catch + fallback ── */
 function renderPass(){
-const box=$('#passContent');
-try{
-const ch=S.chaptersCleared;const all=passMilestones();
-const done=all.filter(m=>m<=ch);const next=all.filter(m>ch).slice(0,12);
-const row=m=>{const claimed=!!S.passDone[m];const can=m<=ch&&!claimed;const rew=passReward(m);
-const right=claimed?`<span class="q-claimed">${t('qDone')}</span>`
-:can?`<button class="q-claim" data-pass="${m}"><span class="q-rew"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.5 6.5 3.5 9.8a4.5 4.5 0 0 0 9 0C12.5 6.5 8 1.5 8 1.5Z" fill="#7cc9e8"/></svg>${rew}</span></button>`
-:`<span class="q-rew inactive"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.5 6.5 3.5 9.8a4.5 4.5 0 0 0 9 0C12.5 6.5 8 1.5 8 1.5Z" fill="#7cc9e8"/></svg>${rew}</span>`;
-return `<div class="qrow ${can?'done':''}">
-<span class="q-ico"><svg viewBox="0 0 16 16"><path d="M3 14V2h8l-2 2.5L11 7H3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg></span>
-<span class="q-body"><span class="q-txt">${t('chap')} ${m}</span>
-<span class="q-bar"><i style="width:${clamp(100*ch/m,0,100)}%"></i></span>
-<span class="q-prog">${Math.min(ch,m)}/${m}</span></span>${right}</div>`;};
-const head=`<div class="q-sec"><h3>${t('passHead')} · ${t('chap')} ${ch}</h3>`;
-box.innerHTML=head+done.map(row).join('')+next.map(row).join('')+'</div>';
-if(!box.innerHTML||!box.children.length)throw new Error('empty');
-}catch(e){
-console.error('renderPass fallback',e);
-try{
+const box=$('#passContent');if(!box)return;
 const ch=S.chaptersCleared||0;
+const all=passMilestones();
+const done=all.filter(x=>x<=ch);
+const next=all.filter(x=>x>ch).slice(0,12);
+const dewSvg='<svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.5 6.5 3.5 9.8a4.5 4.5 0 0 0 9 0C12.5 6.5 8 1.5 8 1.5Z" fill="#7cc9e8"/></svg>';
+const row=m=>{
+const claimed=!!S.passDone[m];
+const can=m<=ch&&!claimed;
+const rew=passReward(m);
+const right=claimed?'<span class="q-claimed">'+t('qDone')+'</span>'
+:can?'<button class="q-claim" data-pass="'+m+'"><span class="q-rew">'+dewSvg+rew+'</span></button>'
+:'<span class="q-rew inactive">'+dewSvg+rew+'</span>';
+return '<div class="qrow '+(can?'done':'')+'">'
++'<span class="q-ico"><svg viewBox="0 0 16 16"><path d="M3 14V2h8l-2 2.5L11 7H3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg></span>'
++'<span class="q-body"><span class="q-txt">'+t('chap')+' '+m+'</span>'
++'<span class="q-bar"><i style="width:'+clamp(100*ch/m,0,100)+'%"></i></span>'
++'<span class="q-prog">'+Math.min(ch,m)+'/'+m+'</span></span>'+right+'</div>';
+};
 let html='<div class="q-sec"><h3>'+t('passHead')+' · '+t('chap')+' '+ch+'</h3>';
-for(const m of passMilestones().filter(x=>x<=ch).concat(passMilestones().filter(x=>x>ch).slice(0,12))){
-const can=m<=ch&&!S.passDone[m];
-html+='<div class="qrow'+(can?' done':'')+'"><span class="q-body"><span class="q-txt">'+t('chap')+' '+m+'</span></span>'+(can?'<button class="q-claim" data-pass="'+m+'"><span class="q-rew">'+passReward(m)+'</span></button>':'<span class="q-rew inactive">'+passReward(m)+'</span>')+'</div>';}
-box.innerHTML=html+'</div>';
-}catch(e2){box.innerHTML='<div class="q-sec"><h3>'+t('passHead')+'</h3></div>';}}}
+html+=done.map(row).join('')+next.map(row).join('')+'</div>';
+box.innerHTML=html;
+}
 function claimPass(m){const ch=S.chaptersCleared;
 if(m>ch||S.passDone[m])return;
 S.passDone[m]=1;S.dew+=passReward(m);
