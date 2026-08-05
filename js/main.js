@@ -3,6 +3,14 @@ let THREE=null;
 function startGame(){
 Tree3D.init();
 applyTreeSkin();
+  // Предварительное запекание базовых мобов (жуки появятся на старте)
+if (THREE) {
+  MobBaker.request('beetle', false);
+  MobBaker.request('bug', false);
+  MobBaker.request('wolf', true);
+  MobBaker.request('bear', true);
+  MobBaker.request('squirrel', false);
+}
 ensureMutUI();
 resize();ensureDaily();applyLang();refreshTutUI();syncMulRowUI();updateTutHighlights();updateHUD();updateEvoBtn();
 if(afkReward>0){
