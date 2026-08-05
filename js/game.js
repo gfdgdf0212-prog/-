@@ -1,7 +1,6 @@
 import { CONFIG, TIERS, ABIL, ABIL_BY_K, SKDEF, MUTS, TREE_SKINS, ET, /* … */ } from './config.js';
 import { $, TAU, ISO, clamp, rand, lerp, fmt, /* … */ } from './utils.js';
 import { S, save, load, maxHpOf } from './state.js';
-<script type="module">
 let THREE=null;
 try{THREE=await import('three');}catch(e){console.warn('Three.js не загрузился — используется 2D-дерево',e);}
 (() => {
@@ -3276,4 +3275,3 @@ setInterval(save,5000);
 addEventListener('beforeunload',save);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
 })();
-</script>
