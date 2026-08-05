@@ -14,9 +14,218 @@
 </script>
 </head>
 <body>
-<!-- ═══ ВЕСЬ HTML ИЗ <body> СЮДА: svg defs, canvas, HUD, все .sheet и .overlay ═══ -->
-<!-- копируй один в один от <svg width="0" height="0"> до </body> без <script> -->
-
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="leafGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fae74"/><stop offset="1" stop-color="#2c5f41"/></linearGradient>
+<linearGradient id="leafGradAfford" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd68a"/><stop offset="1" stop-color="#3a7a52"/></linearGradient>
+<linearGradient id="leafGradMaxed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d488"/><stop offset="1" stop-color="#c9973f"/></linearGradient>
+<linearGradient id="leafGradLocked" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4a40"/><stop offset="1" stop-color="#22302a"/></linearGradient>
+<linearGradient id="rootGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9b26a"/><stop offset="1" stop-color="#7a5a30"/></linearGradient>
+<linearGradient id="rootGradAfford" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8cf9a"/><stop offset="1" stop-color="#8a6a3a"/></linearGradient>
+<linearGradient id="rootGradMaxed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d488"/><stop offset="1" stop-color="#c9973f"/></linearGradient>
+<linearGradient id="rootGradLocked" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4034"/><stop offset="1" stop-color="#2a241c"/></linearGradient>
+</defs></svg>
+<canvas id="game"></canvas>
+<div id="vignette"></div>
+<div id="tutDim"></div>
+<div id="currencyTip"></div>
+<header id="hud-top">
+<div class="hud-group left">
+<div class="pill" id="wavePill">
+<div class="wp-row">
+<svg viewBox="0 0 16 16"><path d="M2 6c2-2.5 4-2.5 6 0s4 2.5 6 0M2 11c2-2.5 4-2.5 6 0s4 2.5 6 0" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+<span class="col"><span class="lab" id="waveLab">Этап</span><b id="waveNum">1-1</b></span>
+</div>
+<button class="pass-btn" id="passBtn" title="Боевой пропуск — награды за главы"><svg viewBox="0 0 16 16"><path d="M3 14V2h8l-2 2.5L11 7H3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg><span class="pdot"></span><span id="passLab">Пропуск</span></button>
+<span id="wprog"><i></i></span>
+</div>
+<button id="evoBtn" class="off" title="Эволюция древа"><svg viewBox="0 0 16 16"><path d="M8 1.5 9.6 5.4 13.8 5.7 10.6 8.4 11.6 12.5 8 10.3 4.4 12.5 5.4 8.4 2.2 5.7 6.4 5.4 8 1.5Z" fill="currentColor"/></svg><span id="evoLab">Эволюция</span></button>
+</div>
+<div class="hud-group">
+<div class="pill" id="mutPill" title="Активные мутации"><svg viewBox="0 0 16 16"><path d="M8 1C5 3 3 5 3 8c0 3 2 5 5 7 3-2 5-4 5-7 0-3-2-5-5-7Z" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/></svg><b id="mutNum">0</b></div>
+<div class="pill" id="seedPill"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b id="seedNum">0</b></div>
+<div class="pill" id="dewPill"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.5 6.5 3.5 9.8a4.5 4.5 0 0 0 9 0C12.5 6.5 8 1.5 8 1.5Z" fill="#7cc9e8"/></svg><b id="dewNum">0</b></div>
+<button class="ico-btn" id="setBtn" title="Настройки"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M12.5 3.5l-1.1 1.1M4.6 11.4l-1.1 1.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+<button class="ico-btn" id="muteBtn" title="Звук">
+<svg class="onv" viewBox="0 0 16 16"><path d="M2.5 6v4h2.8L9 13V3L5.3 6H2.5Z" fill="currentColor"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.8a6 6 0 0 1 0 8.4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+<svg class="offv" viewBox="0 0 16 16"><path d="M2.5 6v4h2.8L9 13V3L5.3 6H2.5Z" fill="currentColor"/><path d="M11.2 6.2l3.6 3.6M14.8 6.2l-3.6 3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+</button>
+<button class="ico-btn" id="resetBtn" title="Сбросить прогресс"><svg viewBox="0 0 16 16"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v2.6h-2.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+</header>
+<div id="waveBanner"><h2 id="bannerTitle"></h2><p id="bannerSub"></p></div>
+<div id="toast"></div>
+<div id="cheatFab" title="Читы">🐞</div>
+<footer id="hud-bottom">
+<div class="tabbar">
+<button class="tabpill t-upg" id="navUpg" title="Статы"><svg viewBox="0 0 16 16"><path d="M8 13V4M8 4 4.5 7.5M8 4l3.5 3.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tp-lab">Статы</span></button>
+<button class="tabpill t-rou" id="navRoulette" title="Карты"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="7.5" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5.5 4.5h2.5M5.5 6.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 14.5h5.5l1.5-9" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tp-lab">Карты</span></button>
+<button class="tabpill t-ski" id="navTree" title="Древо прокачки"><svg viewBox="0 0 16 16"><path d="M8 14V8M8 8C8 5 5.5 3.5 3 3.5 3 6.5 5.5 8 8 8Zm0 0c0-3 2.5-4.5 5-4.5 0 3-2.5 4.5-5 4.5Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg><span class="tp-lab">Ветки</span></button>
+<button class="tabpill t-abi" id="navAbilities" title="Скиллы"><svg viewBox="0 0 16 16"><path d="M8 1.5 9.6 5.4 13.8 5.7 10.6 8.4 11.6 12.5 8 10.3 4.4 12.5 5.4 8.4 2.2 5.7 6.4 5.4 8 1.5Z" fill="currentColor"/></svg><span class="tp-lab">Скиллы</span></button>
+<button class="tabpill t-que" id="navQuests" title="Задания"><svg viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tp-lab">Задания</span></button>
+<button class="tabpill t-sho" id="shopBtn" title="Магазин скинов"><svg viewBox="0 0 16 16"><path d="M3.5 6h9l1.2 8H2.3l1.2-8Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M5.8 6V4.6a2.2 2.2 0 0 1 4.4 0V6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span class="tp-lab">Лавка</span></button>
+</div>
+</footer>
+<div class="sheet" id="upgOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Статы древа</h2></div>
+<div class="panel-body">
+<div id="mulRow">
+<button class="mul-btn on" data-mul="1">×1</button>
+<button class="mul-btn" data-mul="10">×10</button>
+<button class="mul-btn" data-mul="50">×50</button>
+<button class="mul-btn" data-mul="max">Макс</button>
+</div>
+<div class="upg-grid">
+<button class="upg upg-dmg" id="upgDmg"><span class="upg-top"><span class="upg-ico"><svg viewBox="0 0 16 16"><path d="M8 2v5M8 7c0 3-3.2 3.2-4.2 6.5M8 7c0 3 3.2 3.2 4.2 6.5M8 7v7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="upg-mid"><span class="upg-name">Урон</span><span class="upg-stat">10</span></span></span><span class="upg-bottom"><span class="upg-lvlbig">Ур. 0</span><span class="upg-cost"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b>20</b></span></span></button>
+<button class="upg upg-spd" id="upgSpd"><span class="upg-top"><span class="upg-ico"><svg viewBox="0 0 16 16"><path d="M2.5 5.5h7a2.3 2.3 0 1 0-2.3-2.3M2.5 9.5h10a2.3 2.3 0 1 1-2.3 2.3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="upg-mid"><span class="upg-name">Скорость</span><span class="upg-stat">1.0/с</span></span></span><span class="upg-bottom"><span class="upg-lvlbig">Ур. 0</span><span class="upg-cost"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b>30</b></span></span></button>
+<button class="upg upg-rad" id="upgRad"><span class="upg-top"><span class="upg-ico"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M4.5 8a3.5 3.5 0 0 1 7 0M2.5 8a5.5 5.5 0 0 1 11 0" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></span><span class="upg-mid"><span class="upg-name">Радиус</span><span class="upg-stat">85</span></span></span><span class="upg-bottom"><span class="upg-lvlbig">Ур. 0</span><span class="upg-cost"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b>120</b></span></span></button>
+<button class="upg upg-cc" id="upgCc"><span class="upg-top"><span class="upg-ico"><svg viewBox="0 0 16 16"><path d="M9 1.5 4 9h3.5L7 14.5 12 7H8.5L9 1.5Z" fill="currentColor"/></svg></span><span class="upg-mid"><span class="upg-name">Крит. шанс</span><span class="upg-stat">0%</span></span></span><span class="upg-bottom"><span class="upg-lvlbig">Ур. 0</span><span class="upg-cost"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b>60</b></span></span></button>
+<button class="upg upg-cd" id="upgCd"><span class="upg-top"><span class="upg-ico"><svg viewBox="0 0 16 16"><path d="M8 1.5 9.6 5.4 13.8 5.7 10.6 8.4 11.6 12.5 8 10.3 4.4 12.5 5.4 8.4 2.2 5.7 6.4 5.4 8 1.5Z" fill="currentColor"/></svg></span><span class="upg-mid"><span class="upg-name">Крит. урон</span><span class="upg-stat">×1.5</span></span></span><span class="upg-bottom"><span class="upg-lvlbig">Ур. 0</span><span class="upg-cost"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b>70</b></span></span></button>
+<button class="upg upg-hp" id="upgHp"><span class="upg-top"><span class="upg-ico"><svg viewBox="0 0 16 16"><path d="M8 1.5l5.5 2.2v3.8c0 3.6-2.4 6.2-5.5 7-3.1-.8-5.5-3.4-5.5-7V3.7L8 1.5Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M8 4.5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="upg-mid"><span class="upg-name">Кора</span><span class="upg-stat">100</span></span></span><span class="upg-bottom"><span class="upg-lvlbig">Ур. 0</span><span class="upg-cost"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b>25</b></span></span></button>
+</div>
+</div>
+</div>
+</div>
+<div class="sheet" id="rouletteOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Карты способностей</h2></div>
+<div class="panel-body">
+<div id="cardMulRow">
+<button class="mul-btn on" data-cmul="1">×1</button>
+<button class="mul-btn" data-cmul="10">×10</button>
+<button class="mul-btn" data-cmul="50">×50</button>
+</div>
+<div class="cards-stage" id="cardsStage"></div>
+<button class="btn-spin" id="spinBtn"></button>
+<button class="btn-claim" id="claimBtn" style="display:none">Забрать</button>
+</div>
+</div>
+</div>
+<div class="sheet" id="skillTreeOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Древо прокачки</h2></div>
+<div class="panel-body">
+<div class="skill-tree-container" id="skillTreeContainer"><div class="skill-tree" id="skillTree"></div></div>
+</div>
+</div>
+</div>
+<div class="sheet" id="abilitiesOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Скиллы</h2></div>
+<div class="panel-body">
+<div class="ab-head"><span>Экипировано</span> <b id="abCount">0/2</b></div>
+<div id="abilContent"></div>
+</div>
+</div>
+</div>
+<div class="sheet" id="questsOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Задания</h2></div>
+<div class="panel-body">
+<div class="claim-wrap"><button class="btn-claim" id="claimAllBtn">Забрать всё</button></div>
+<div id="questsContent"></div>
+</div>
+</div>
+</div>
+<div class="sheet" id="passOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Боевой пропуск</h2></div>
+<div class="panel-body"><div id="passContent"></div></div>
+</div>
+</div>
+<div class="sheet" id="mutationsOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Мутации древа</h2></div>
+<div class="panel-body">
+<div class="ab-head"><span>Активные</span> <b id="mutCount">0</b></div>
+<div class="mut-active" id="mutActive"></div>
+<div class="ab-group">Выбрать новую мутацию (еженедельно)</div>
+<div id="mutChoices"></div>
+</div>
+</div>
+</div>
+<div class="sheet" id="shopOverlay">
+<div class="panel">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Магазин обликов</h2></div>
+<div class="panel-body">
+<div class="shop-amber"><svg viewBox="0 0 16 16"><path d="M8 1.5 13 6l-5 8.5L3 6l5-4.5Z" fill="#f0a848"/><path d="M3 6h10M8 1.5 6 6l2 8.5M8 1.5 10 6 8 14.5" stroke="#ffd9a0" stroke-width=".7" fill="none"/></svg><span id="shopAmber">0</span></div>
+<div class="skin-grid" id="skinGrid"></div>
+</div>
+</div>
+</div>
+<div class="sheet" id="setOverlay">
+<div class="panel" style="max-width:440px;margin:0 auto">
+<div class="panel-grip"></div>
+<div class="panel-head"><h2>Настройки</h2></div>
+<div class="panel-body">
+<div class="set-row"><label>Эффекты</label><div class="rng-wrap"><input type="range" id="volRange" min="0" max="100" value="100"><span class="val" id="volVal">100%</span></div></div>
+<div class="set-row"><label>Музыка</label><div class="rng-wrap"><input type="range" id="musicRange" min="0" max="100" value="0"><span class="val" id="musicVal">0%</span></div></div>
+<div class="set-row"><label>Скорость игры</label>
+<div class="speed-row">
+<button class="speed-btn on" data-speed="1">×1</button>
+<button class="speed-btn locked" data-speed="2" id="speed2Btn">×2</button>
+<button class="speed-btn" data-speed="4" id="speed4Btn">×4</button>
+</div>
+</div>
+<div class="set-row"><label>Тряска экрана</label><button class="tog on" id="shakeTog">Вкл</button></div>
+<div class="set-row"><button class="gfx-btn" id="gfxToggle"><span>Настройки графики</span><svg viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+<div class="gfx-sub" id="gfxSub">
+<div class="gfx-row"><label>Частицы</label><div class="gfx-opts" id="gfxParticles"><button class="gfx-opt" data-v="low">Мало</button><button class="gfx-opt on" data-v="med">Средне</button><button class="gfx-opt" data-v="high">Много</button></div></div>
+<div class="gfx-row"><label>3D-дерево</label><div class="gfx-opts" id="gfx3d"><button class="gfx-opt on" data-v="on">3D</button><button class="gfx-opt" data-v="off">2D</button></div></div>
+<div class="gfx-row"><label>Тени</label><div class="gfx-opts" id="gfxShadows"><button class="gfx-opt on" data-v="on">Вкл</button><button class="gfx-opt" data-v="off">Выкл</button></div></div>
+<div class="gfx-row"><label>Свечение</label><div class="gfx-opts" id="gfxGlow"><button class="gfx-opt on" data-v="on">Вкл</button><button class="gfx-opt" data-v="off">Выкл</button></div></div>
+</div>
+<div class="set-row"><label>Язык</label><div class="lang-sw"><button id="langRu" class="on">RU</button><button id="langEn">EN</button></div></div>
+</div>
+</div>
+</div>
+<div class="overlay" id="afkOverlay">
+<div class="modal afk">
+<div class="m-ico"><svg viewBox="0 0 16 16"><path d="M13.6 9.7A6 6 0 0 1 6.3 2.4a6.3 6.3 0 1 0 7.3 7.3Z" fill="currentColor"/></svg></div>
+<h2>Пока вас не было…</h2>
+<p class="afk-sub">Древо держало оборону <b id="afkTime">—</b></p>
+<div class="afk-reward"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.2 6 3.2 9.6a4.8 4.8 0 0 0 9.6 0C12.8 6 8 1.5 8 1.5Z" fill="#e8b64c"/></svg><b id="afkAmount">+0</b><span>семян</span></div>
+<div class="afk-reward dew-r" id="afkDewRow" style="display:none"><svg viewBox="0 0 16 16"><path d="M8 1.5C8 1.5 3.5 6.5 3.5 9.8a4.5 4.5 0 0 0 9 0C12.5 6.5 8 1.5 8 1.5Z" fill="#7cc9e8"/></svg><b id="afkDew">+0</b><span>росы</span></div>
+<button class="btn-primary" id="afkClaim">Забрать награду</button>
+</div>
+</div>
+<div class="overlay" id="overOverlay">
+<div class="modal over">
+<div class="m-ico"><svg viewBox="0 0 16 16"><path d="M8 14.5V8.6L6 6.9l2.2-1.8V2.6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11.6" cy="12.4" r="1.4" fill="currentColor"/></svg></div>
+<h2>Древо пало…</h2>
+<div class="stats">
+<div class="st"><b id="stWave">1-1</b><span>этап</span></div>
+<div class="st"><b id="stKills">0</b><span>врагов</span></div>
+<div class="st"><b id="stSeeds">0</b><span>семян</span></div>
+</div>
+<button class="btn-primary" id="reviveBtn">🌱 Возродить древо</button>
+</div>
+</div>
+<div class="overlay" id="speed4Overlay">
+<div class="modal">
+<div class="m-ico" style="background:rgba(240,168,72,.14);border:1px solid rgba(240,168,72,.45);color:#ffd9a0"><svg viewBox="0 0 16 16"><path d="M9 1.5 4 9h3.5L7 14.5 12 7H8.5L9 1.5Z" fill="currentColor"/></svg></div>
+<h2>Скорость ×4</h2>
+<p class="afk-sub">Ускоряет бой в 4 раза. Покупка навсегда.</p>
+<button class="btn-primary" id="speed4BuyBtn">Купить за 100 <svg viewBox="0 0 16 16" style="width:14px;height:14px;vertical-align:-2px"><path d="M8 1.5 13 6l-5 8.5L3 6l5-4.5Z" fill="#f0a848"/></svg></button>
+<button class="btn-ghost" id="speed4CancelBtn">Отмена</button>
+</div>
+</div>
+<div class="overlay" id="mutOverlay">
+<div class="modal mut">
+<div class="m-ico"><svg viewBox="0 0 16 16"><path d="M8 1C5 3 3 5 3 8c0 3 2 5 5 7 3-2 5-4 5-7 0-3-2-5-5-7Z" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/></svg></div>
+<h2 id="mutTitle">Заражение недели</h2>
+<p class="afk-sub">Древо мутирует. Выбери одну из трёх инфекций — каждая даёт <b style="color:#b8e8b0">бонус</b> и <b style="color:#f0b0a8">побочный эффект</b>.</p>
+<div class="mut-list" id="mutList"></div>
+</div>
+</div>
 <script type="module" src="js/game.js"></script>
 </body>
 </html>
