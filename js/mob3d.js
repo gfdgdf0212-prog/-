@@ -366,12 +366,22 @@ const MobBaker = (() => {
 
     const pivot = model.userData.pivot || new THREE.Vector3(0, 0, 0);
 
-    for (let d = 0; d < DIRS; d++) {
-      for (let f = 0; f < FRAMES; f++) {
-        const phi = (d / DIRS) * Math.PI * 2;
-        const t = f / FRAMES;
-        model.position.set(-pivot.x, -pivot.y + Math.sin(t * Math.PI * 2) * 0.05, -pivot.z);
-        model.rotation.set(0, phi + Math.sin(t * Math.PI * 2) * 0.06, 0);
+// Базовый поворот: чтобы «вперёд» модели проецировалось ВПРАВО на экране
+// (подогнано под ракурс камеры пекаря 7,9,10.5 → 0,1.3,0)
+const BASE_ROT = -Math.PI / 2;
+// Поправка по типам: жук смотрит в -Z, остальные в +Z
+const FACE_OFFSET = {
+  beetle: Math.PI, spider: 0, bug: 0,
+  wolf: 0, bear: 0, squirrel: 0
+};
+const faceOff = FACE_OFFSET[type] || 0;
+
+for (let d = 0; d < DIRS; d++) {
+  for (let f = 0; f < FRAMES; f++) {
+    const phi = (d / DIRS) * Math.PI * 2;
+    const t = f / FRAMES;
+    model.position.set(-pivot.x, -pivot.y + Math.sin(t * Math.PI * 2) * 0.05, -pivot.z);
+    model.rotation.set(0, BASE_ROT + faceOff + phi + Math.sin(t * Math.PI * 2) * 0.06, 0);
         // червяк: лёгкое сжатие по Z
         if (type === 'bug') model.scale.set(1, 1, 1 + Math.sin(t * Math.PI * 2) * 0.08);
         else model.scale.set(1, 1, 1);
