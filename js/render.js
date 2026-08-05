@@ -507,7 +507,7 @@ if(pct>0){ctx.fillStyle=pct>.5?'#8fd68a':pct>.25?'#e8b64c':'#e0564f';rr(x-w/2+1,
 function drawEnemy(e){
 const gx=cx+e.x,gy=cy+e.y*ISO;const sy=gy-e.lift;const r=e.r;
  /* ── 3D-спрайт моба (если запечён) ── */
-const MOB3D_MAP = { beetle:'beetle', spider:'beetle', wolf:'wolf', golem:'bear', spirit:'bug', boss:'wolf', evoboss:'bear' };
+const MOB3D_MAP = { beetle:'beetle', wolf:'spider', golem:'beetle', spirit:'bug', boss:'wolf', evoboss:'bear' };;
 const MOB3D_KEY = MOB3D_MAP[e.type];
 if (MOB3D_KEY && MobBaker.isReady(MOB3D_KEY)) {
   // направление по вектору движения
