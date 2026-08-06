@@ -507,70 +507,45 @@ if(pct>0){ctx.fillStyle=pct>.5?'#8fd68a':pct>.25?'#e8b64c':'#e0564f';rr(x-w/2+1,
 function drawEnemy(e){
 const gx=cx+e.x,gy=cy+e.y*ISO;const sy=gy-e.lift;const r=e.r;
 /* ── 3D-спрайт моба (если запечён) ── */
-const MOB3D_MAP = { beetle:'beetle', wolf:'spider', golem:'beetle', spirit:'bug', boss:'wolf', evoboss:'bear' };
-const MOB3D_KEY = MOB3D_MAP[e.type];
-if (MOB3D_KEY && MobBaker.isReady(MOB3D_KEY)) {
-  // направление по вектору движения
-  const sp = Math.hypot(e.vx, e.vy);
-  let dir = 0;
-  if (sp > 2) {
-    const ang = Math.atan2(e.vy, e.vx);
-    dir = Math.round(ang / (Math.PI / 4));
-    if (dir < 0) dir += 8;
-  }
-  // КАДР: если атакует — статичный кадр атаки (5), иначе ходьба
-  const frame = e.attacking ? 5 : Math.floor((T * 8 + e.phase * 2) % 5);
-  const sprite = MobBaker.getSprite(MOB3D_KEY, dir, frame);
-  if (sprite) {
-    // РАЗМЕРЫ: увеличены под масштаб игры
-    const isBoss = e.type === 'boss' || e.type === 'evoboss';
-   const MOB3D_SIZE = { beetle:12, wolf:12, golem:7, spirit:12, boss:11, evoboss:10 };
-const size = r * (MOB3D_SIZE[e.type] || 7);
-
-    // ВЫПАД при атаке (как у векторных мобов)
-    const atkLunge = e.attacking ? Math.sin((e.atkAnim || 0) * Math.PI) * 10 : 0;
-    const fa = Math.atan2(-e.y * ISO, -e.x);
-    const lungeX = Math.cos(fa) * atkLunge;
-    const lungeY = Math.sin(fa) * atkLunge * ISO;
-
-    const drawX = gx + lungeX;
-    const drawY = sy - r * 0.35 + lungeY;
-
-    // тень под мобом
-    ctx.fillStyle = 'rgba(0,0,0,' + (.35 * (1 - e.lift / 30)).toFixed(2) + ')';
-    ell(gx, gy + 2, size * 0.32, size * 0.14);
-
-    // кольца эффектов
-    if (e.slow > 0) { ctx.strokeStyle = 'rgba(124,201,232,.5)'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(gx, sy - r * 0.35, size * 0.38, 0, TAU); ctx.stroke(); }
-    if (e.freeze > 0) { ctx.strokeStyle = 'rgba(124,201,232,.7)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(gx, sy - r * 0.35, size * 0.42, 0, TAU); ctx.stroke(); }
-    if (e.burn > 0) { ctx.fillStyle = 'rgba(255,140,60,.25)';
-      ctx.beginPath(); ctx.arc(gx, sy - r * 0.35, size * 0.36, 0, TAU); ctx.fill(); }
-
-    // сам спрайт (с учётом выпада)
-    ctx.globalAlpha = .25 + .75 * e.born;
-    ctx.drawImage(sprite.atlas, sprite.sx, sprite.sy, sprite.sw, sprite.sh,
-      drawX - size / 2, drawY - size * 0.55 + e.lift * 0.2, size, size);
-    ctx.globalAlpha = 1;
-
-    // вспышка попадания
-    if (e.flash > 0) {
-      ctx.fillStyle = 'rgba(255,255,255,' + (e.flash * 0.5).toFixed(2) + ')';
-      ctx.beginPath(); ctx.arc(gx, sy - r * 0.35, size * 0.36, 0, TAU); ctx.fill();
-    }
-    // held (корни)
-    if (e.held > 0) { ctx.strokeStyle = 'rgba(120,90,50,.6)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(gx, sy - r * 0.35, size * 0.36, 0, TAU); ctx.stroke(); }
-    if (e.bleed > 0 && e.bleedT > 0) { ctx.strokeStyle = 'rgba(168,220,120,.5)'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(gx, sy - r * 0.35, size * 0.34, 0, TAU); ctx.stroke(); }
-
-    // HP-бар
-    if (e.born > .6) hpBar(gx, sy - r - 12, r * 2.2, e.hp / e.maxHp, isBoss);
-    return;
-  }
-}
-if (MOB3D_KEY && !MobBaker.isReady(MOB3D_KEY)) MobBaker.request(MOB3D_KEY, e.type === 'boss' || e.type === 'evoboss');
+const MOB3D_MAP={beetle:'beetle',wolf:'spider',golem:'beetle',spirit:'bug',boss:'wolf',evoboss:'bear'};
+/* размеры: множитель на r. Крути под вкус */
+const MOB3D_SIZE={beetle:12,wolf:12,golem:8,spirit:12,boss:10,evoboss:11};
+const MOB3D_KEY=MOB3D_MAP[e.type];
+if(MOB3D_KEY&&MobBaker.isReady(MOB3D_KEY)){
+const sp=Math.hypot(e.vx,e.vy);
+/* направление: по движению; если стоит и бьёт — смотрит на дерево */
+const ang=sp>2?Math.atan2(e.vy,e.vx):Math.atan2(-e.y,-e.x);
+let dir=Math.round(ang/(Math.PI/4))%8;if(dir<0)dir+=8;
+const frame=e.attacking?2:Math.floor((T*8+e.phase)%4);
+const sprite=MobBaker.getSprite(MOB3D_KEY,dir,frame);
+if(sprite){
+const size=r*(MOB3D_SIZE[e.type]||8);
+const atkLunge=e.attacking?Math.sin((e.atkAnim||0)*Math.PI)*8:0;
+const fa=Math.atan2(-e.y*ISO,-e.x);
+const lungeX=Math.cos(fa)*atkLunge, lungeY=Math.sin(fa)*atkLunge*ISO;
+/* тень — ТОЛЬКО от игрового радиуса r */
+ctx.fillStyle='rgba(0,0,0,'+(.35*(1-e.lift/30)).toFixed(2)+')';
+ell(gx,gy+2,r*1.0,r*.42);
+if(e.slow>0){ctx.strokeStyle='rgba(124,201,232,.5)';ctx.lineWidth=1.5;
+ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.15,0,TAU);ctx.stroke();}
+if(e.freeze>0){ctx.strokeStyle='rgba(124,201,232,.7)';ctx.lineWidth=2;
+ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.25,0,TAU);ctx.stroke();}
+if(e.burn>0){ctx.fillStyle='rgba(255,140,60,.25)';
+ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.1,0,TAU);ctx.fill();}
+ctx.globalAlpha=.25+.75*e.born;
+ctx.drawImage(sprite.atlas,sprite.sx,sprite.sy,sprite.sw,sprite.sh,
+gx+lungeX-size/2, gy-size*0.9+lungeY, size, size);
+ctx.globalAlpha=1;
+if(e.flash>0){ctx.fillStyle='rgba(255,255,255,'+(e.flash*.5).toFixed(2)+')';
+ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.05,0,TAU);ctx.fill();}
+if(e.held>0){ctx.strokeStyle='rgba(120,90,50,.6)';ctx.lineWidth=2;
+ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.1,0,TAU);ctx.stroke();}
+if(e.bleed>0&&e.bleedT>0){ctx.strokeStyle='rgba(168,220,120,.5)';ctx.lineWidth=1.5;
+ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.05,0,TAU);ctx.stroke();}
+if(e.born>.6)hpBar(gx,sy-r-12,r*2.2,e.hp/e.maxHp,e.type==='boss'||e.type==='evoboss');
+return;
+}}
+if(MOB3D_KEY&&!MobBaker.isReady(MOB3D_KEY))MobBaker.request(MOB3D_KEY,e.type==='boss'||e.type==='evoboss');
 const perspScale=0.7+0.3*clamp(gy/H,0,1);
 ctx.globalAlpha=(.25+.75*e.born)*perspScale;
 ctx.fillStyle='rgba(0,0,0,'+(.35*(1-e.lift/30)).toFixed(2)+')';ell(gx,gy+2,r*.95*perspScale,r*.4*perspScale);
