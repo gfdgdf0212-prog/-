@@ -534,7 +534,7 @@ if(e.burn>0){ctx.fillStyle='rgba(255,140,60,.25)';
 ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.1,0,TAU);ctx.fill();}
 ctx.globalAlpha=.25+.75*e.born;
 ctx.drawImage(sprite.atlas,sprite.sx,sprite.sy,sprite.sw,sprite.sh,
-gx+lungeX-size/2, gy-size*0.9+lungeY, size, size);
+gx+lungeX-size/2, gy+lungeY-sprite.gyF*size, size, size);
 ctx.globalAlpha=1;
 if(e.flash>0){ctx.fillStyle='rgba(255,255,255,'+(e.flash*.5).toFixed(2)+')';
 ctx.beginPath();ctx.arc(gx,sy-r*0.35,r*1.05,0,TAU);ctx.fill();}
