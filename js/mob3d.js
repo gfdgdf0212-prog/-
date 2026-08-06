@@ -228,6 +228,9 @@ baker.renderer.setSize(cell,cell,false);
 const model=FACTORY[type]();
 baker.scene.add(model);
 fitCamera(model);
+/* где в ячейке (в пикселях) находится земля y=0 */
+const gv=new THREE.Vector3(0,0,0).project(baker.camera);
+groundPix[type]=Math.round((1-(gv.y+1)/2)*cell);
 const atlas=document.createElement('canvas');
 atlas.width=cell*DIRS;atlas.height=cell*FRAMES;
 const ctx=atlas.getContext('2d');
@@ -253,6 +256,6 @@ function getSprite(type,dir,frame){
 const atlas=atlases[type];if(!atlas)return null;
 const cell=(type==='wolf'||type==='bear')?BOSS_CELL:CELL;
 const sx=((dir%DIRS)+DIRS)%DIRS*cell, sy=((frame%FRAMES)+FRAMES)%FRAMES*cell;
-return {atlas,sx,sy,sw:cell,sh:cell};}
+return {atlas,sx,sy,sw:cell,sh:cell,gyF:(groundPix[type]||cell*0.8)/cell};}
 return {request,isReady,getSprite};
 })();
