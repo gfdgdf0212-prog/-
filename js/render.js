@@ -524,7 +524,8 @@ if (MOB3D_KEY && MobBaker.isReady(MOB3D_KEY)) {
   if (sprite) {
     // РАЗМЕРЫ: увеличены под масштаб игры
     const isBoss = e.type === 'boss' || e.type === 'evoboss';
-    const size = r * (isBoss ? 9 : 7);
+   const MOB3D_SIZE = { beetle:12, wolf:12, golem:7, spirit:12, boss:11, evoboss:10 };
+const size = r * (MOB3D_SIZE[e.type] || 7);
 
     // ВЫПАД при атаке (как у векторных мобов)
     const atkLunge = e.attacking ? Math.sin((e.atkAnim || 0) * Math.PI) * 10 : 0;
