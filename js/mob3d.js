@@ -6,7 +6,7 @@ const MobBaker=(()=>{
 const DIRS=8, FRAMES=4;
 const CELL=128, BOSS_CELL=192;
 const THETA0=2.159; // точная калибровка под камеру (7,9,10.5)->(0,1.3,0)
-const atlases={},ready={},pending={};
+const atlases={},ready={},pending={},groundPix={};
 let baker=null;
 
 function mat(color,roughness=0.6,metalness=0.1,emissive=null,emissiveIntensity=0){
